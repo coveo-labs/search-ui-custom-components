@@ -7,3 +7,4 @@ export { SalesforceCommunityResultLink } from './components/SalesforceCommunityR
 export { SearchHistory } from './components/SearchHistory/SearchHistory';
 export { QuerySyntaxToggle } from './components/QuerySyntaxToggle.ts/QuerySyntaxToggle';
 export { CollapseExpandAllFacet } from './components/CollapseExpandAllFacet/CollapseExpandAllFacet';
+export { CustomContext } from './components/CustomContext/CustomContext';

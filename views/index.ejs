@@ -20,6 +20,7 @@
 </head>
 
 <body id="search" class='CoveoSearchInterface' data-enable-history="true" data-design="new">
+  <div class="CoveoCustomContext" data-context='{"foo":"bar"}'></div>
   <div class="coveo-tab-section">
     <a class="CoveoTab" data-id="All" data-caption="All Content"></a>
   </div>
@@ -71,40 +72,40 @@
       <div class="CoveoDidYouMean"></div>
       <div class="CoveoErrorReport" data-pop-up="false"></div>
       <div class="CoveoResultList" data-wait-animation="fade" data-auto-select-fields-to-include="true">
-          <script id="Knowledge" class="result-template" type="text/html" data-field-objecttype="Knowledge">
-            <div class="coveo-result-frame">
-              <div class="coveo-result-row">
-                <div class="coveo-result-cell" style="width:70px;text-align:center;padding-top:7px;">
-                  <span class="CoveoIcon"></span>
-                  <div class="CoveoQuickview">
-                    <div class="coveo-icon-for-quickview">Quickview</div>
-                  </div>
-                  <div class="CoveoRating"></div>
+        <script id="Knowledge" class="result-template" type="text/html" data-field-objecttype="Knowledge">
+          <div class="coveo-result-frame">
+            <div class="coveo-result-row">
+              <div class="coveo-result-cell" style="width:70px;text-align:center;padding-top:7px;">
+                <span class="CoveoIcon"></span>
+                <div class="CoveoQuickview">
+                  <div class="coveo-icon-for-quickview">Quickview</div>
                 </div>
-                <div class="coveo-result-cell" style="padding-left:5px;">
-                  <div class="coveo-result-row">
-                    <div class="coveo-result-cell" style="font-size:16px;">
-                      <a class="CoveoSalesforceCommunityResultLink"></a>
-                      <div class="CoveoResultAction"></div>
-                    </div>
-                    <div class="coveo-result-cell" style="width:120px; text-align:right; font-size:12px">
-                      <span class="CoveoFieldValue" data-field="@date" data-helper="date"></span>
-                    </div>
+                <div class="CoveoRating"></div>
+              </div>
+              <div class="coveo-result-cell" style="padding-left:5px;">
+                <div class="coveo-result-row">
+                  <div class="coveo-result-cell" style="font-size:16px;">
+                    <a class="CoveoSalesforceCommunityResultLink"></a>
+                    <div class="CoveoResultAction"></div>
                   </div>
-                  <div class="coveo-result-row">
-                    <div class="coveo-result-cell">
-                      <span class="CoveoExcerpt"></span>
-                    </div>
+                  <div class="coveo-result-cell" style="width:120px; text-align:right; font-size:12px">
+                    <span class="CoveoFieldValue" data-field="@date" data-helper="date"></span>
                   </div>
-                  <div class="coveo-result-row">
-                    <div class="coveo-result-cell">
-                      <span class="CoveoSalesforceCommunityResultLink" data-use-as-printable="true"></span>
-                    </div>
+                </div>
+                <div class="coveo-result-row">
+                  <div class="coveo-result-cell">
+                    <span class="CoveoExcerpt"></span>
+                  </div>
+                </div>
+                <div class="coveo-result-row">
+                  <div class="coveo-result-cell">
+                    <span class="CoveoSalesforceCommunityResultLink" data-use-as-printable="true"></span>
                   </div>
                 </div>
               </div>
             </div>
-          </script>
+          </div>
+        </script>
         <script id="Default" class="result-template" type="text/html">
           <div class="coveo-result-frame">
             <div class="coveo-result-row">
