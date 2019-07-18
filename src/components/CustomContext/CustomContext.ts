@@ -2,10 +2,10 @@ import Component = Coveo.Component;
 import Initialization = Coveo.Initialization;
 import ComponentOptions = Coveo.ComponentOptions;
 import IComponentBindings = Coveo.IComponentBindings;
-import IBuildingQueryEventArgs = Coveo.IBuildingQueryEventArgs;
+import IStringMap = Coveo.IStringMap;
 
 export interface ICustomContextOptions {
-  context: any
+  context: IStringMap<any>
 }
 
 /**
@@ -15,28 +15,24 @@ export class CustomContext extends Component {
 
   static ID = 'CustomContext';
   static options: ICustomContextOptions = {
-    context: ComponentOptions.buildJsonObjectOption({
-      defaultValue: {}
-    })
+    context: Coveo.ComponentOptions.buildJsonObjectOption()
   };
+
+  private pipelineContext: Coveo.PipelineContext;
 
   constructor(public element: HTMLElement, public options: ICustomContextOptions, public bindings?: IComponentBindings) {
     super(element, CustomContext.ID, bindings);
     this.options = ComponentOptions.initComponentOptions(element, CustomContext, options);
-    this.bind.onRootElement(Coveo.QueryEvents.buildingQuery, (data: IBuildingQueryEventArgs) => this.handleBuildingQuery(data));
+    this.pipelineContext = new Coveo.PipelineContext(this.element, {}, bindings);
+    this.setupPipelineContext(this.options.context);
   }
 
-  /**
-  * Building Query
-  */
-  private handleBuildingQuery(args: IBuildingQueryEventArgs) {
-    var i = this.options.context.length;
-    while (i--) {
-      if (this.options.context[i] === "" || this.options.context[i] === null) {
-        this.options.context.splice(i, 1);
-      }
-    }
-    args.queryBuilder.addContext(this.options.context);
+  public setupPipelineContext(data: IStringMap<any>) {
+    this.pipelineContext.setContext(_.pick(data, _.identity) || {});
+  }
+
+  public getPipelineContext() {
+    return this.searchInterface.getQueryContext();
   }
 };
 

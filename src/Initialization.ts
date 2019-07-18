@@ -2,6 +2,7 @@ import { Utils } from 'coveo-search-ui';
 
 export const doInitialization = () => {
   document.addEventListener('DOMContentLoaded', () => {
+    
     const searchInterfaceEl = document.querySelector('#search');
 
     if (searchInterfaceEl) {
@@ -14,7 +15,14 @@ export const doInitialization = () => {
       }
 
       Coveo.SearchEndpoint.configureSampleEndpointV2();
-      Coveo.init(searchInterface);
+      Coveo.init(searchInterface, {
+        CustomContext: {
+          context: {
+            'patate':'poil',
+            'frite': 'cuite'
+          }
+        }
+      });
     }
   });
 };
