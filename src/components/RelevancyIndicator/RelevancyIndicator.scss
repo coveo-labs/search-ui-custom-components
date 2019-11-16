@@ -1,0 +1,74 @@
+$color_over_treshold: #61b716;
+$color_under_treshold: #fdd006;
+$background_color_1: transparent;
+$background_color_2: #ededed;
+$background_color_3: #eee;
+
+@mixin threshold-color($previous-selector, $next-selector, $style) {
+  $states: (
+    over: $color_over_treshold,
+    under: $color_under_treshold
+  );
+
+  @each $key, $val in $states {
+    #{$previous-selector}.threshold-#{$key}#{$next-selector} {
+      #{$style}: $val;
+    }
+  }
+}
+
+.progress-block {
+  display: flex;
+  width: 300px;
+  align-items: center;
+  justify-content: center;
+  > :first-child {
+    padding-right: 0.75rem;
+  }
+  > label {
+    font-weight: 600;
+  }
+  > * {
+    flex: 0 0 auto;
+    padding-right: 0.5rem;
+  }
+  > .progress {
+    flex: 0 1 auto;
+  }
+}
+.progress {
+  background-color: $background_color_1;
+  border-radius: 0;
+  font-size: inherit;
+  height: 2em;
+  margin: 0;
+  // max-height: 0.5rem;
+  // min-height: 0.2rem;
+  max-height: 12px;
+  min-height: 10px;
+  overflow: hidden;
+  display: block;
+  width: 100%;
+  > progress {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    -o-appearance: none;
+    display: block;
+    background-color: $background_color_2;
+    border: none;
+    height: 100%;
+    width: 100%;
+    @include threshold-color('&', '', color);
+    @include threshold-color('&', '::-webkit-progress-value', background-color);
+    @include threshold-color('&', '::-moz-progress-bar', background-color);
+
+    &::-webkit-progress-bar {
+      background-color: $background_color_3;
+    }
+  }
+}
+progress {
+  vertical-align: baseline;
+  display: inline-block;
+}

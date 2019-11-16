@@ -1,38 +1,43 @@
 import {
   ComponentOptions,
   Component,
+  Initialization,
+  $$,
   l,
   DateUtils,
-  PopulateBreadcrumbEventArgs,
+  IPopulateBreadcrumbEventArgs,
   BreadcrumbEvents,
-  QuerySuccessEventArgs,
+  IQuerySuccessEventArgs,
   QueryEvents,
-  BuildingQueryEventArgs,
-  AttributeChangedEventArg,
-  ComponentBindings,
+  IBuildingQueryEventArgs,
+  Assert,
+  DatePicker,
+  IComponentBindings,
+  Utils,
+  IAttributeChangedEventArg,
   Model
 } from 'coveo-search-ui';
+import { IRangePickerRadioOptions, RangePickerRadio } from './RangePickerRadio';
+import { RangePickerActionCause, IRangePickerAnalyticsArgs, IRadioSelectEventArgs, RangePickerEvent } from './events/RangePickerEvents';
+import { SVGIcons } from './utils/SVGIcons';
 
 declare const require: (module: string) => any;
 require('./sass/RangePicker.scss');
-import * as DateRange from 'daterangepicker';
-import * as moment from 'moment';
 
-export interface IInputChangeEventArgs {
-  from: number;
-  to: number;
-  this: any;
-}
+// Hack to prevent sending twice the same query
+Coveo.DatePicker.prototype['setValue'] = function(date: Date, preventOnSelect = false) {
+  (this as any)['picker'].setDate(date, preventOnSelect);
+  (this as any)['wasReset'] = false;
+};
 
-export class RangePickerEvent {
-  static inputChange = 'inputChange';
-  static clear = 'clear';
-}
-
-export interface IRangePickerOptions {
+export interface IRangePickerOptions extends IRangePickerRadioOptions {
   id?: string;
   title?: string;
-  field: string;
+  fieldFrom: string;
+  fieldTo: string;
+  enableRadioButton?: boolean;
+  enableCollapse?: boolean;
+  langCode?: string;
   format?: string;
   inputPlaceholder?: string;
 }
@@ -49,7 +54,7 @@ export class RangePicker extends Component {
      * Default value is the concatenation of {@link RangePicker.options.fieldFrom} and {@link RangePicker.options.fieldTo} option value.
      */
     id: ComponentOptions.buildStringOption({
-      postProcessing: (value: string, options: IRangePickerOptions) => value || _.unique(options.field).join('')
+      postProcessing: (value: string, options: IRangePickerOptions) => value || _.unique([options.fieldFrom, options.fieldTo]).join('-')
     }),
 
     /**
@@ -60,6 +65,34 @@ export class RangePicker extends Component {
     title: ComponentOptions.buildLocalizedStringOption({ defaultValue: l('NoTitle') }),
 
     /**
+     * Specifies what the caption of "today" radio button should be.
+     *
+     * Default value is the string `"Today"`.
+     */
+    todayCaption: ComponentOptions.buildLocalizedStringOption({ defaultValue: 'Today' }),
+
+    /**
+     * Specifies what the caption of "thisweek" radio button should be.
+     *
+     * Default value is the string `"This Week"`.
+     */
+    thisWeekCaption: ComponentOptions.buildLocalizedStringOption({ defaultValue: 'This Week' }),
+
+    /**
+     * Specifies what the caption of "lastweek" radio button should be.
+     *
+     * Default value is the string `"Last Week"`.
+     */
+    lastWeekCaption: ComponentOptions.buildLocalizedStringOption({ defaultValue: 'Last Week' }),
+
+    /**
+     * Specifies what the caption of "thismonth" radio button should be.
+     *
+     * Default value is the string `"This Month"`.
+     */
+    thisMonthCaption: ComponentOptions.buildLocalizedStringOption({ defaultValue: 'This Month' }),
+
+    /**
      * Specifies the index field whose values the Facet should use.
      * This field will be used to filter out all results with inferior value.
      *
@@ -67,25 +100,55 @@ export class RangePicker extends Component {
      *
      * Default value is the string `"@sysdate"`.
      */
-    field: ComponentOptions.buildLocalizedStringOption({ defaultValue: '@sysdate', required: true }),
+    fieldFrom: ComponentOptions.buildLocalizedStringOption({ defaultValue: '@sysdate', required: true }),
 
-    /*langCode: ComponentOptions.buildStringOption({ defaultValue: 'en' }),*/
+    /**
+     * Specifies the index field whose values the Facet should use.
+     * This field will be used to filter out all results with superior value.
+     *
+     * The field should represent numerical values for this component to work.
+     *
+     * Default value is the string `"@sysdate"`.
+     */
+    fieldTo: ComponentOptions.buildLocalizedStringOption({ defaultValue: '@sysdate', required: true }),
+    /**
+     * Specifies the index field whose values the Facet should use.
+     * This field will be used to filter out all results with superior value.
+     *
+     * The field should represent boolean values for this component to work.
+     *
+     * Default value is the boolean `"false"`.
+     */
+    enableRadioButton: ComponentOptions.buildBooleanOption({ defaultValue: false, required: false }),
 
-    format: ComponentOptions.buildStringOption({ defaultValue: 'DD-MM-YYYY' }),
+    /**
+     * Specifies if the Collapse/Expand button should be displayed.
+     *
+     * The field should represent boolean values for this component to work.
+     *
+     * Default value is the boolean `"false"`.
+     */
+    enableCollapse: ComponentOptions.buildBooleanOption({ defaultValue: false, required: false }),
 
-    inputPlaceholder: ComponentOptions.buildStringOption({ defaultValue: 'Select a date...' })
+    langCode: ComponentOptions.buildStringOption({ defaultValue: 'en' }),
+
+    format: ComponentOptions.buildStringOption({ defaultValue: 'YYYY-MM-DD' }),
+
+    inputPlaceholder: ComponentOptions.buildStringOption({ defaultValue: 'YYYY-MM-DD' })
   };
 
   static ID: string = 'RangePicker';
   // Default value for from and to
   static DEFAULT: number = -1;
 
-  private pickerFrom: DateRange;
-
   private from: number = RangePicker.DEFAULT;
   private to: number = RangePicker.DEFAULT;
-  private facetHeader: Coveo.FacetHeader;
+  private radio: number = RangePicker.DEFAULT;
+  private fromInput: DatePicker;
+  private toInput: DatePicker;
+  private eraserElement: HTMLElement | undefined;
   private rangePickerQueryStateAttribute: string = '';
+  private rangePickerRadio: RangePickerRadio;
 
   /**
    * Creates an instance of RangePicker. Binds multiple query events as well.
@@ -95,9 +158,14 @@ export class RangePicker extends Component {
    * @param {IComponentBindings} [bindings] The bindings that the component requires to function normally. If not set, these will be
    * automatically resolved (with a slower execution time).
    */
-  constructor(public element: HTMLElement, public options: IRangePickerOptions, bindings?: ComponentBindings) {
+  constructor(public element: HTMLElement, public options: IRangePickerOptions, bindings?: IComponentBindings) {
     super(element, RangePicker.ID, bindings);
     this.options = ComponentOptions.initComponentOptions(element, RangePicker, options);
+
+    this.rangePickerRadio = new RangePickerRadio(this.root, this.options);
+
+    this.fromInput = this.buildInput(this.getId('start'));
+    this.toInput = this.buildInput(this.getId('end'));
 
     this.initQueryEvents();
     this.initQueryStateEvents();
@@ -106,6 +174,8 @@ export class RangePicker extends Component {
   createDom() {
     this.buildFacetContent();
     this.updateAppearanceDependingOnState();
+    this.fromInput.reset();
+    this.toInput.reset();
   }
 
   /**
@@ -115,128 +185,134 @@ export class RangePicker extends Component {
    */
   reset(executeQuery: boolean = true) {
     this.ensureDom();
-    this.pickerFrom.setStartDate(undefined);
-    this.pickerFrom.setEndDate(undefined);
-    const range = { from: RangePicker.DEFAULT, to: RangePicker.DEFAULT, this: this };
-    Coveo.$('#' + this.getId('start')).val(this.options.inputPlaceholder);
+    this.fromInput.reset();
+    this.toInput.reset();
+
+    if (this.shouldRenderRadioPicker()) {
+      this.rangePickerRadio.reset();
+    }
+
+    const range = { from: RangePicker.DEFAULT, to: RangePicker.DEFAULT, radio: RangePicker.DEFAULT };
+
     this.logger.info('reset', executeQuery);
-    this.onChange(range, true);
+    this.onChange(range, RangePickerActionCause.facetRangeClear, executeQuery);
     this.updateAppearanceDependingOnState();
   }
 
   private buildFacetContent() {
-    this.buildHeader();
+    const headerElement = this.buildHeader();
+    this.element.appendChild(headerElement);
 
     this.buildContent();
   }
 
   private buildContent() {
-    const inner = Coveo.$('<div class="inner-content"></div>').appendTo(this.element);
-    this.buildPickerInputSection(inner);
+    const innerContent = $$('div', { className: 'inner-content' });
 
-    this.buildInputFrom(document.getElementById(this.getId('start')));
+    if (this.shouldRenderRadioPicker()) {
+      innerContent.append(this.rangePickerRadio.build());
+    }
+
+    innerContent.append(this.buildPickerInputSection());
+    this.element.appendChild(innerContent.el);
   }
 
-  private buildPickerInputSection(parent: any) {
-    const inputSection = Coveo.$('<div class="coveo-facet-values"></div>').appendTo(parent);
+  private shouldRenderRadioPicker(): boolean {
+    Assert.exists(this.options.enableRadioButton);
+    return this.options.enableRadioButton as boolean;
+  }
 
-    inputSection.append(this.buildPickerinputRow('Start', this.getId('start')));
+  private buildPickerInputSection(): HTMLElement {
+    const inputSection = $$('div', { className: 'input-section' });
+
+    inputSection.append(this.buildPickerinputRow('Start', this.getId('start'), this.fromInput.getElement()));
+    inputSection.append(this.buildPickerinputRow('End', this.getId('end'), this.toInput.getElement()));
+
+    return inputSection.el;
   }
 
   private getId(extra?: string): string {
-    let id = `${this.options.id}${extra ? '-' + extra : ''}`;
-    return id.replace('@', '');
+    return `${this.options.id}${extra ? '-' + extra : ''}`;
   }
 
-  private buildPickerinputRow(labelCaption: string, id: string): any {
-    const inputRow = Coveo.$('<div class="flex input-row"></div>');
-    inputRow.append(Coveo.$('<div class="input-label"></div>')); //.text(labelCaption));
-    inputRow.append(
-      Coveo.$("<input type='text' autocapitalize='off' readonly=true autocorrect='off' class='coveo-facet-search-input'/>")
-        .attr('id', id)
-        .attr('value', this.options.inputPlaceholder)
-    );
-
-    //inputRow.append($$('label', { for: id, className: 'calendar-icon' }, SVGIcons.icons.calendar).el);
-    return inputRow;
+  private buildPickerinputRow(labelCaption: string, id: string, inputElement: HTMLInputElement): HTMLElement {
+    const inputRow = $$('div', { className: 'flex input-row' });
+    inputRow.append($$('div', { className: 'input-label' }, labelCaption).el);
+    inputRow.append(inputElement);
+    inputRow.append($$('label', { for: id, className: 'calendar-icon' }, SVGIcons.icons.calendar).el);
+    return inputRow.el;
   }
 
-  private buildHeader() {
-    var _this = this;
-    this.facetHeader = new Coveo.FacetHeader({
-      field: this.options.field,
-      facetElement: Coveo.$(this.element),
-      title: this.options.title,
-      enableClearElement: true,
-      enableCollapseElement: true,
-      onEraserClick: function() {
-        _this.reset();
-        _this.queryController.executeQuery();
-      },
-      isLightningDesign: this.getBindings().searchInterface.isNewDesign()
+  private buildHeader(): HTMLElement {
+    const header = $$('div', { className: 'coveo-facet-header' });
+
+    const titleSection = $$('div', { className: 'coveo-facet-header-title-section' });
+    titleSection.append($$('div', { className: 'coveo-facet-header-title' }, this.options.title as string).el);
+    titleSection.append($$('div', { className: 'coveo-facet-header-wait-animation', style: 'visibility:hidden' }).el);
+    header.append(titleSection.el);
+
+    header.append(this.buildEraser());
+    return header.el;
+  }
+
+  private buildEraser(): HTMLElement {
+    this.eraserElement = $$(
+      'div',
+      { title: l('Clear', this.options.title), className: 'coveo-facet-header-eraser' },
+      SVGIcons.icons.facetClear
+    ).el;
+
+    const svgElement = this.eraserElement.querySelector('svg');
+    if (svgElement) {
+      svgElement.classList.add('coveo-facet-header-eraser-svg');
+    }
+
+    const args: IRangePickerAnalyticsArgs = {
+      rangeFieldFrom: this.options.fieldFrom,
+      rangeFieldTo: this.options.fieldTo,
+      rangePickerTitle: this.options.title as string,
+      rangePickerState: `${this.from}-${this.to}`
+    };
+
+    $$(this.eraserElement).on('click', () => {
+      this.usageAnalytics.logCustomEvent({ name: RangePickerActionCause.facetRangeClear, type: 'customEventType' }, args, this.root);
+      this.reset();
     });
-    this.facetHeader.build().appendTo(this.element);
+    return this.eraserElement;
   }
 
-  private buildInputFrom(id: HTMLElement) {
-    var _this = this;
-    this.pickerFrom = new DateRange(
-      id,
-      {
-        ranges: {
-          Today: [moment(), moment()],
-          Yesterday: [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-          'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-          'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-          'This Month': [moment().startOf('month'), moment().endOf('month')],
-          'Last Month': [
-            moment()
-              .subtract(1, 'month')
-              .startOf('month'),
-            moment()
-              .subtract(1, 'month')
-              .endOf('month')
-          ]
-        },
-        autoUpdateInput: false,
-        locale: {
-          format: this.options.format
-        },
-        startDate: moment(),
-        endDate: moment()
-      },
-      function(start, end, label) {
-        //console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
-        const range = {
-          from: start ? start.valueOf() : RangePicker.DEFAULT,
-          to: end ? end.valueOf() : RangePicker.DEFAULT,
-          this: this,
-          executeQuery: false
-        };
-        $(this.element).val(
-          _this.pickerFrom.startDate.format(_this.options.format) + ' - ' + _this.pickerFrom.endDate.format(_this.options.format)
-        );
-        const executeQuery = range.from !== this.from || range.to !== this.to;
-        range.executeQuery = executeQuery;
-        _this.onChange(range, executeQuery);
-      }
-    );
+  private buildInput(id: string) {
+    const pickerElement = new Coveo.DatePicker(() => this.handleInputChange());
+    if (this.options.inputPlaceholder) {
+      pickerElement.getElement().setAttribute('placeholder', this.options.inputPlaceholder);
+    }
+    pickerElement.getElement().setAttribute('id', id);
+    return pickerElement;
   }
 
   private updateAppearanceDependingOnState() {
-    if (document.getElementById(this.getId('start'))) {
-      const isActive = this.from != RangePicker.DEFAULT && this.to != RangePicker.DEFAULT;
-      Coveo.$(this.facetHeader.eraserElement).fastToggle(isActive);
-    }
+    Assert.exists(this.eraserElement);
+    const isActive = Utils.isNonEmptyString(this.fromInput.getValue() + this.toInput.getValue());
+
+    $$(this.element).toggleClass('coveo-active', isActive);
+    $$(this.eraserElement as HTMLElement).toggleClass('coveo-facet-header-eraser-visible', isActive);
   }
 
-  private onChange(range: IInputChangeEventArgs, executeQuery): void {
+  private onChange(range: IRadioSelectEventArgs, actionCause: string, executeQuery: boolean = true): void {
     this.queryStateModel.set(this.rangePickerQueryStateAttribute, range);
-    Coveo.$(this.element).trigger(RangePickerEvent.inputChange, range);
     if (executeQuery) {
-      this.triggerNewQuery(function() {
-        return '';
-      });
+      this.triggerNewQuery(() =>
+        this.usageAnalytics.logCustomEvent(
+          { name: actionCause, type: 'customEventType' },
+          {
+            rangeFieldFrom: this.options.fieldFrom,
+            rangeFieldTo: this.options.fieldTo,
+            rangePickerTitle: this.options.title as string,
+            rangePickerState: `${this.from}-${this.to}`
+          },
+          this.root
+        )
+      );
     }
   }
 
@@ -252,65 +328,84 @@ export class RangePicker extends Component {
     const query = [];
     if (this.from !== RangePicker.DEFAULT) {
       const fromDate = new Date(this.from);
-      query.push(this.options.field + ' >= ' + moment(fromDate).format('YYYY/MM/DD'));
+      query.push(this.options.fieldFrom + ' >= ' + DateUtils.dateForQuery(fromDate));
     }
     if (this.to !== RangePicker.DEFAULT) {
       const toDate = new Date(this.to);
-      query.push(this.options.field + ' <= ' + moment(toDate).format('YYYY/MM/DD'));
+      query.push(this.options.fieldTo + ' <= ' + DateUtils.dateForQuery(toDate));
     }
     return query.join(' AND ');
   }
 
-  private handleBuildingQuery(e, args: BuildingQueryEventArgs) {
+  private handleBuildingQuery(args: IBuildingQueryEventArgs) {
     const query = this.getQuery();
     if (query !== null) {
       args.queryBuilder.advancedExpression.add(query);
     }
   }
 
-  private handleDeferredQuerySuccess(e, args: QuerySuccessEventArgs) {
+  private handleDeferredQuerySuccess(args: IQuerySuccessEventArgs) {
     this.ensureDom();
     if (this.from === RangePicker.DEFAULT) {
-      this.pickerFrom.setStartDate(undefined);
+      this.fromInput.reset();
+      this.fromInput.getElement().value = '';
     } else {
-      this.pickerFrom.setStartDate(new Date(this.from));
+      (this.fromInput as any)['setValue'](new Date(this.from), true);
     }
 
     if (this.to === RangePicker.DEFAULT) {
-      this.pickerFrom.setEndDate(undefined);
+      this.toInput.reset();
+      this.toInput.getElement().value = '';
     } else {
-      this.pickerFrom.setEndDate(new Date(this.to));
+      (this.toInput as any)['setValue'](new Date(this.to), true);
+    }
+
+    if (this.radio === RangePicker.DEFAULT) {
+      this.rangePickerRadio.reset();
+    } else {
+      this.rangePickerRadio.setValue(this.radio);
     }
 
     this.updateAppearanceDependingOnState();
   }
 
   private initQueryEvents() {
-    this.bind.onRoot(RangePickerEvent.inputChange, (args: RangePickerEvent) => {
+    this.bind.onRootElement(RangePickerEvent.inputChange, (args: IRadioSelectEventArgs) => {
       // this.queryStateModel.set(this.rangePickerQueryStateAttribute, args);
     });
 
-    this.bind.onRoot(QueryEvents.deferredQuerySuccess, this.handleDeferredQuerySuccess);
-    this.bind.onRoot(QueryEvents.buildingQuery, this.handleBuildingQuery);
-    this.bind.onRoot(BreadcrumbEvents.populateBreadcrumb, this.handlePopulateBreadcrumb);
-    this.bind.onRoot(BreadcrumbEvents.clearBreadcrumb, this.handleClearBreadcrumb);
+    this.bind.onRootElement(RangePickerEvent.radioSelect, (args: IRadioSelectEventArgs) => {
+      this.logger.info('radioSelect', args);
+      this.onChange(args, RangePickerActionCause.facetRangeRadioSelect, true);
+    });
+    this.bind.onRootElement(QueryEvents.deferredQuerySuccess, (args: IQuerySuccessEventArgs) => this.handleDeferredQuerySuccess(args));
+    this.bind.onRootElement(QueryEvents.buildingQuery, (args: IBuildingQueryEventArgs) => this.handleBuildingQuery(args));
+    this.bind.onRootElement(BreadcrumbEvents.populateBreadcrumb, (args: IPopulateBreadcrumbEventArgs) =>
+      this.handlePopulateBreadcrumb(args)
+    );
+    this.bind.onRootElement(BreadcrumbEvents.clearBreadcrumb, () => this.handleClearBreadcrumb());
   }
 
   private initQueryStateEvents() {
     this.rangePickerQueryStateAttribute = this.options.id + ':rangePicker';
 
-    this.queryStateModel.registerNewAttribute(this.rangePickerQueryStateAttribute, { from: RangePicker.DEFAULT, to: RangePicker.DEFAULT });
+    this.queryStateModel.registerNewAttribute(this.rangePickerQueryStateAttribute, {
+      from: RangePicker.DEFAULT,
+      to: RangePicker.DEFAULT,
+      radio: RangePicker.DEFAULT
+    });
     const eventName = this.queryStateModel.getEventName(Model.eventTypes.changeOne + this.rangePickerQueryStateAttribute);
 
-    this.bind.onRoot(eventName, (e, args: AttributeChangedEventArg) => {
+    this.bind.onRootElement(eventName, (args: IAttributeChangedEventArg) => {
       this.handleQueryStateChanged(args.value);
     });
   }
 
-  private handleQueryStateChanged(state: IInputChangeEventArgs) {
+  private handleQueryStateChanged(state: IRadioSelectEventArgs) {
     this.ensureDom();
     const from = Number(state.from);
     const to = Number(state.to);
+    const radio = Number(state.radio);
 
     if (!isNaN(from) && DateUtils.isValid(new Date(from))) {
       this.from = from;
@@ -323,9 +418,15 @@ export class RangePicker extends Component {
     } else {
       this.to = RangePicker.DEFAULT;
     }
+
+    if (!isNaN(radio) && this.rangePickerRadio.isValid(radio)) {
+      this.radio = radio;
+    } else {
+      this.radio = RangePicker.DEFAULT;
+    }
   }
 
-  private handlePopulateBreadcrumb(e, args: PopulateBreadcrumbEventArgs) {
+  private handlePopulateBreadcrumb(args: IPopulateBreadcrumbEventArgs) {
     const breadcrumb = this.populateBreadcrumb();
     if (breadcrumb !== null) {
       args.breadcrumbs.push({
@@ -342,7 +443,6 @@ export class RangePicker extends Component {
     if (this.hasEmptyState()) {
       return null;
     }
-
     const range: string[] = [];
 
     /* Here, handling date format;
@@ -352,45 +452,73 @@ export class RangePicker extends Component {
     if (this.from !== RangePicker.DEFAULT) {
       const fromDate = new Date(this.from);
       try {
-        range.push(l('From').toLowerCase() + ' ' + moment(fromDate).format(this.options.format));
+        range.push(l('From').toLowerCase() + ' ' + this.fromInput.getValue());
       } catch (e) {
-        //range.push('from ' + DateUtils.dateForQuery(fromDate));
+        range.push('from ' + DateUtils.dateForQuery(fromDate));
       }
     }
 
     if (this.to !== RangePicker.DEFAULT) {
       const toDate = new Date(this.to);
       try {
-        range.push(l('To').toLowerCase() + ' ' + moment(toDate).format(this.options.format));
+        range.push(l('To').toLowerCase() + ' ' + this.toInput.getValue());
       } catch (e) {
-        //range.push('to ' + DateUtils.dateForQuery(toDate));
+        range.push('to ' + DateUtils.dateForQuery(toDate));
       }
     }
-    const element = Coveo.$('<div class="coveo-facet-breadcrumb coveo-breadcrumb-item vin-breadcrumb"></div>');
 
-    const title = Coveo.$('<div class="coveo-facet-breadcrumb-title"></div>').text(this.options.title + ': ');
-    title.appendTo(element);
+    const element = $$('div', { className: 'coveo-facet-breadcrumb coveo-breadcrumb-item vin-breadcrumb' });
 
-    const value = Coveo.$('<span class="coveo-facet-breadcrumb-value coveo-selected"></span>');
-    value.appendTo(title);
+    const title = $$('span', { className: 'coveo-facet-breadcrumb-title' }, this.options.title + ': ');
+    element.append(title.el);
+
+    const value = $$('span', { className: 'coveo-facet-breadcrumb-value coveo-selected' });
+    title.append(value.el);
 
     value.on('click', () => {
       this.reset();
     });
 
-    const caption = Coveo.$('<span class="coveo-facet-breadcrumb-caption"></span>').text(range.join(' - '));
-    caption.appendTo(value);
+    const caption = $$('span', { className: 'coveo-facet-breadcrumb-caption' }, range.join(' - '));
+    value.append(caption.el);
 
-    const eraser = Coveo.$('<span class="coveo-facet-breadcrumb-clear"></span>');
-    eraser.appendTo(value);
+    const eraser = $$('span', { className: 'coveo-facet-breadcrumb-clear' });
+    value.append(eraser.el);
 
-    return element[0];
-    //return element.get(0);
+    return element.el;
   }
 
-  private handleClearBreadcrumb(e) {
+  private handleClearBreadcrumb() {
     this.reset(false);
+  }
+
+  private handleInputChange() {
+    try {
+      (this.fromInput as any)['wasReset'] = false;
+      (this.toInput as any)['wasReset'] = false;
+    } catch (error) {
+      this.logger.error('Unable to reset the inputs');
+    }
+
+    this.ensureDom();
+
+    if (this.shouldRenderRadioPicker()) {
+      this.rangePickerRadio.reset();
+    }
+
+    const range: IRadioSelectEventArgs = {
+      from: this.fromInput.getValue() ? new Date(this.fromInput.getValue()).getTime() : RangePicker.DEFAULT,
+      to: this.toInput.getValue() ? new Date(this.toInput.getValue()).getTime() : RangePicker.DEFAULT,
+      radio: RangePicker.DEFAULT
+    };
+
+    this.bind.trigger(this.root, RangePickerEvent.inputChange, range);
+    const executeQuery = range.from !== this.from || range.to !== this.to;
+    this.logger.info('Input change', range, this.from, this.to, executeQuery);
+    this.onChange(range, RangePickerActionCause.facetRangeInputChange, executeQuery);
   }
 }
 
-Coveo.CoveoJQuery.registerAutoCreateComponent(RangePicker);
+if (!Coveo.Initialization.isComponentClassIdRegistered(RangePicker.ID)) {
+  Initialization.registerAutoCreateComponent(RangePicker);
+}

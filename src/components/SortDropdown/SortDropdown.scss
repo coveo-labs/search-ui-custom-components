@@ -1,0 +1,128 @@
+
+$base-font-size: 16;
+$select-font-size: $base-font-size * 1px;
+$select-color: #444444;
+$select-border-color: #B7BCC0;
+$select-background: #fff;
+$select-active-background: #F4F4F4;
+$select-width: 184px;
+$select-height: 40px; 
+
+.coveo-custom-sort-dropdown-text {
+  font-size: $select-font-size;
+  display: block;
+  text-align: left;
+}
+
+.CoveoSortDropdown {
+  margin-bottom: 5px;
+  .CoveoSort {
+    display: none;
+  }
+}
+
+.CoveoSortDropdown.coveo-sort-hidden {
+    display: none;
+}
+
+.coveo-results-header {
+    overflow: visible !important;
+}
+
+.coveo-custom-select-hidden {
+    display: none;
+    visibility: hidden;
+    padding-right: 10px;
+    transition: all o
+  }
+  .coveo-custom-select {
+    cursor: pointer;
+    display: block;
+    position: relative;
+    font-size: $select-font-size;
+    color: $select-color;
+    width: $select-width;
+    height: $select-height;
+    margin-top: 4px;
+  }
+  .coveo-custom-select-styled {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: $select-background;
+    padding: 9px 18px;
+    border: 1px solid $select-border-color;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    text-align: left;
+    &:after {
+      content:"";
+      width: 0;
+      height: 0;
+      border: 5px solid transparent;
+      border-color: $select-color transparent transparent transparent;
+      position: absolute;
+      top: 19px;
+      right: 10px;
+    }
+    &:hover {
+      background-color: $select-active-background;
+    }
+    &:active, &.active {
+      background-color: $select-active-background;
+      border: 1px solid $select-border-color;
+      border-bottom-left-radius: 0px;
+      border-bottom-right-radius: 0px;
+      &:after {
+        top: 12px;
+        border-color: transparent transparent $select-color transparent;
+      }
+    }
+  }
+  
+  .coveo-custom-select-options {
+    display: none; 
+    min-width: $select-width;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 999;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    background-color: $select-background;
+    border: 1px solid $select-border-color;
+    border-top: none;
+    box-shadow: rgba(0,0,0,0.2) 0 10px 40px;
+    li {
+      margin: 0;
+      padding: 12px 0;
+      text-indent: 15px;
+      border-top: 0px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      text-align: left;
+      &:hover {
+        color: $select-color;
+        background:$select-active-background;
+        border-bottom-left-radius: 3px;
+        border-bottom-right-radius: 3px;
+      }
+      &[value="hide"] {
+        display: none;
+      }
+      &.active {
+        background-color: $select-active-background;
+      }
+    }
+}

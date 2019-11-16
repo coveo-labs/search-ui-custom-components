@@ -1,0 +1,20 @@
+// Common
+html {
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+fieldset {
+  border: none;
+  padding: 0;
+}
+
+ol,
+ul {
+  list-style: none;
+}

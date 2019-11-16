@@ -1,5 +1,5 @@
 {
-  "name": "onprem-search-ui-components",
+  "name": "search-ui-custom-components",
   "version": "1.0.1",
   "description": "",
   "main": "dev",
@@ -23,7 +23,7 @@
   "license": "ISC",
   "devDependencies": {
     "clean-webpack-plugin": "^3.0.0",
-    "coveo-search-ui": "^1.0.501",
+    "coveo-search-ui": "^2.7023.4",
     "css-loader": "^3.2.0",
     "lint-staged": "^9.2.5",
     "mini-css-extract-plugin": "^0.8.0",
@@ -44,8 +44,6 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
-    "@types/daterangepicker": "^3.0.1",
-    "daterangepicker": "^3.0.5",
     "ejs": "^2.7.1",
     "yargs": "^14.0.0"
   }

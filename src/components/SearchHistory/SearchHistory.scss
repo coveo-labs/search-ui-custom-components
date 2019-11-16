@@ -1,0 +1,23 @@
+$main-color: #f7f8f9;
+$font-color: #1d4f76;
+$border-color: #bcc3ca;
+$hover-color: #e6ecf0;
+
+.hidden {
+  display: none;
+}
+
+.CoveoSearchHistory {
+  margin: 10px 0;
+  overflow: hidden;
+  border: 1px solid $border-color;
+
+  .coveo-facet-value-label {
+    word-wrap: break-word;
+    white-space: inherit;
+  }
+}
+
+.coveo-facet-header-title > .fas {
+  margin-right: 10px;
+}
