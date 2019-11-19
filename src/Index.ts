@@ -5,5 +5,6 @@ declare global {
 }
 
 import './Components';
-import { doInitialization } from './Initialization';
-doInitialization();
+//Removed, will create a conflict when changing the Endpoint on-premise
+//import { doInitialization } from './Initialization';
+//doInitialization();

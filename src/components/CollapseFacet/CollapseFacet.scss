@@ -1,0 +1,30 @@
+.CoveoFacet.easy-collapse {
+  cursor: pointer;
+
+  .coveo-facet-header:hover {
+      /*background: #d5d6d7;*/
+  }
+
+  .coveo-facet-header-settings-section:after {
+      content: ">";
+      -moz-transition: all .2s ease-in;
+      -webkit-transition: all .2s ease-in;
+      transition: all .2s ease-in;
+      margin-right: 5px;
+      width: 16px;
+      height: 16px;
+      position: relative;
+      top: 2px;
+      -moz-transform:rotate(90deg);
+      -webkit-transform:rotate(90deg);
+      transform:rotate(90deg);
+}
+
+  &.coveo-facet-collapsed {
+      .coveo-facet-header-settings-section:after {
+          -moz-transform:rotate(270deg);
+          -webkit-transform:rotate(270deg);
+          transform:rotate(270deg);
+      }
+  }
+}

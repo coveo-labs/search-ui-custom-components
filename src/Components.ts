@@ -9,3 +9,8 @@ export { QuerySyntaxToggle } from './components/QuerySyntaxToggle.ts/QuerySyntax
 export { CollapseExpandAllFacet } from './components/CollapseExpandAllFacet/CollapseExpandAllFacet';
 export { CustomContext } from './components/CustomContext/CustomContext';
 export { RelevancyIndicator } from './components/RelevancyIndicator/RelevancyIndicator';
+export { ScopeSelector } from './components/ScopeSelector/ScopeSelector';
+export { RewriteResultLink } from './components/RewriteResultLink/RewriteResultLink';
+export { DateRangePicker } from './components/DateRangePicker/DateRangePicker';
+export { CollapseFacet } from './components/CollapseFacet/CollapseFacet';
+export { AdditionalQueryFilter } from './components/AdditionalQueryFilter/AdditionalQueryFilter';
