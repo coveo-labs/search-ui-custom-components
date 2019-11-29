@@ -14,3 +14,4 @@ export { RewriteResultLink } from './components/RewriteResultLink/RewriteResultL
 export { DateRangePicker } from './components/DateRangePicker/DateRangePicker';
 export { CollapseFacet } from './components/CollapseFacet/CollapseFacet';
 export { AdditionalQueryFilter } from './components/AdditionalQueryFilter/AdditionalQueryFilter';
+export { UserInfo } from './components/UserInfo/UserInfo';

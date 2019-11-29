@@ -26,9 +26,9 @@ export class AdditionalQueryFilter extends Component {
   static options: IAdditionalQueryFilterOptions = {
     fields: Coveo.ComponentOptions.buildListOption(),
     query: ComponentOptions.buildStringOption(),
-    filterquery: ComponentOptions.buildStringOption(),
-    filterquerynoresults: ComponentOptions.buildStringOption(),
-    scope: ComponentOptions.buildStringOption()
+    filterquery: ComponentOptions.buildStringOption({ defaultValue: '' }),
+    filterquerynoresults: ComponentOptions.buildStringOption({ defaultValue: '' }),
+    scope: ComponentOptions.buildStringOption({ defaultValue: '' })
   };
 
   constructor(public element: HTMLElement, public options: IAdditionalQueryFilterOptions, public bindings: IResultsComponentBindings) {
@@ -40,7 +40,7 @@ export class AdditionalQueryFilter extends Component {
 
   private initInfo() {
     //Initialize retrievedInfo structure
-    this.retrievedInfo = [];
+    this.retrievedInfo = {};
     for (var i = 0; i < this.options.fields.length; i++) {
       this.retrievedInfo[this.options.fields[i]] = '';
     }
@@ -66,13 +66,17 @@ export class AdditionalQueryFilter extends Component {
       }
     }
     if (this.retrievedInfo['Collected'] == 'Empty') {
-      args.queryBuilder.advancedExpression.add(this.options.filterquerynoresults);
-    } else {
-      var query = this.options.filterquery;
-      for (var i = 0; i < this.options.fields.length; i++) {
-        query = query.replace('{FIELD' + (i + 1) + '}', this.retrievedInfo[this.options.fields[i]]);
+      if (this.options.filterquerynoresults != '') {
+        args.queryBuilder.advancedExpression.add(this.options.filterquerynoresults);
       }
-      args.queryBuilder.advancedExpression.add(query);
+    } else {
+      if (this.options.filterquery != '') {
+        var query = this.options.filterquery;
+        for (var i = 0; i < this.options.fields.length; i++) {
+          query = query.replace('{FIELD' + (i + 1) + '}', this.retrievedInfo[this.options.fields[i]]);
+        }
+        args.queryBuilder.advancedExpression.add(query);
+      }
     }
   }
 
@@ -86,20 +90,21 @@ export class AdditionalQueryFilter extends Component {
     //Check if present in local storage
     var _this = this;
     new Promise(function(deferred) {
-      this.retrievedInfo = this.localStorage.load();
-      if (this.retrievedInfo == null) {
+      _this.retrievedInfo = _this.localStorage.load();
+      if (_this.retrievedInfo == null) {
         //Get it from the index
         _this.initInfo();
         var query = new Coveo.QueryBuilder();
         query.numberOfResults = 1;
-        query.expression.add(this.options.query);
+        query.expression.add(_this.options.query);
 
         var builtQuery = query.build();
 
-        if (this.options.scope != '') {
-          Coveo.SearchEndpoint.endpoints.default.options.queryStringArguments.scope = this.options.scope;
+        if (_this.options.scope != '') {
+          Coveo.SearchEndpoint.endpoints.default.options.queryStringArguments.scope = _this.options.scope;
         }
-        var resultPromise = this.queryController.getEndpoint().search(builtQuery);
+        var resultPromise = _this.queryController.getEndpoint().search(builtQuery);
+        
         if (resultPromise) {
           resultPromise
             .then(function(results) {
@@ -108,19 +113,20 @@ export class AdditionalQueryFilter extends Component {
                   _this.retrievedInfo[_this.options.fields[i]] = results.results[0].raw[_this.options.fields[i].replace('@', '')];
                 }
                 _this.retrievedInfo['Collected'] = true;
-                _this.localStorage.save(_this.retrievedInfo);
+                _this.localStorage.save([_this.retrievedInfo]);
               } else {
                 _this.retrievedInfo['Collected'] = 'Empty';
               }
-              this.deferred.resolve(_this.queryController.executeQuery());
+              deferred(_this.queryController.executeQuery());
             })
-            .catch(function() {
-              this.retrievedInfo['Collected'] == false;
-              this.deferred.resolve();
+            .catch(function(e) {
+              console.log(e);
+              _this.retrievedInfo['Collected'] == false;
+              deferred();
             });
         }
       } else {
-        this.deferred.resolve();
+        deferred();
       }
     });
   }

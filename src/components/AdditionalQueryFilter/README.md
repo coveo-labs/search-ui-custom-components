@@ -4,8 +4,10 @@ AdditionalQueryFilter will query the index to retrieve an additional filter to a
 For example: Get field @syscompany from the index and apply it as an AdvancedExpression.
 
 ```
-<div class="CoveoAdditionalQueryFilter" data-fields="@mycompany,@myuser" data-query="@sysource=People @currentuser" data-filterquery="(@mycompany={FIELD1} AND @myuser={FIELD2}) OR NOT @mycompany"></div>
+<div class="CoveoAdditionalQueryFilter" data-scope="123" data-fields="@mycompany,@myuser" data-query="@syssource=People @querytogetcompanyname" data-filterquery="(@mycompany={FIELD1} AND @myuser={FIELD2}) OR NOT @mycompany"></div>
 ```
+
+Retrieved fields are stored in local storage with id: `AdditionalQueryFilter`.
 
 ## main.js in C:\Program Files\Coveo Search API 8\pipelines\default
 Should contain:

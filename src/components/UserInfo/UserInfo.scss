@@ -1,0 +1,569 @@
+$icons-and-title-color: #296896;
+$blue-link: #009DDC;
+$blue-light: #d3e2ec;
+$gray-dark: #728196;
+$gray-medium: #c4cad0;
+$gray-light: #f2f5f5;
+$white: #ffffff;
+
+$org-panel-background: $white;
+$org-panel-color: $gray-dark;
+$org-panel-border: $gray-dark;
+
+$usercard-border-color: #bcc3ca;
+$default-text-color: #373737;
+
+// Primary palette
+$darker-blue: #193045;
+$dark-blue: #263e55;
+$medium-blue: #1d4f76;
+$light-blue: #296896;
+$dark-grey: #373737;
+$medium-grey: #bcc3ca;
+$light-grey: #e6ecf0;
+$white: #f1f3f4;
+$pure-white: #ffffff;
+$orange: #f58020;
+$stratos: #08080e;
+
+// Secondary palette
+$red: #ce3f00;
+$yellow: #ecad00;
+$green: #009830;
+$blue: #009ad9;
+
+.coveo-modal-content {
+  width: 95% !important;
+  height: 85% !important;
+
+  .userpage-info-container,
+  h1,
+  #userpage-stats {
+    padding: 15px 30px;
+  }
+
+  .userpage-info-container {
+    overflow: hidden;
+    flex-wrap: wrap;
+    justify-content: left;
+
+    .userpage-info {
+      padding-top: 40px;
+    }
+  }
+
+  h1 {
+    color: $default-text-color;
+    text-transform: uppercase;
+    font-size: 18px;
+  }
+
+  .CoveoResult {
+    display: flex;
+    position: inherit;
+    margin: 0;
+  }
+
+  .CoveoResultList {
+    margin: 0;
+    overflow: auto;
+  }
+
+  .CoveoResult {
+    margin: 0;
+    padding: 0 20px 0 10px;
+    border-bottom: none;
+    border-top: 1px solid $usercard-border-color;
+
+    &:first-child {
+      border-top: none;
+    }
+
+    .coveo-result-frame {
+      padding: 10px 0 0 0;
+    }
+  }
+}
+
+@media screen and (max-width: 950px) {
+  .coveo-modal-content #userpage-recent-docs-user {
+    .CoveoResultList {
+      display: flex !important;
+      flex-direction: column;
+    }
+
+    .userpage-info-container {
+      order: -1;
+    }
+
+    .userpage-org {
+      float: inherit;
+      border: 0;
+      border-top: 1px solid $usercard-border-color;
+      padding-top: 0;
+      margin-left: 0;
+
+      .org-chart {
+        width: auto;
+      }
+    }
+  }
+}
+
+.userpage-picture,
+.ct-people-picture {
+  display: inline-block;
+  width: 120px;
+  height: 120px;
+  background-size: 120px auto;
+  background-repeat: no-repeat;
+  background-position: center center;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.user-badge {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 2px 20px 0 0;
+
+  .user-picture {
+    border-radius: 50%;
+    border: thin solid #bcc3ca;
+    background-size: 40px auto;
+    background-repeat: no-repeat;
+    height: 40px;
+    width: 40px;
+  }
+}
+
+.userpage-section,
+.scroller {
+  border-top: 1px solid $medium-grey;
+}
+
+
+.scroller {
+  height: 120px;
+  position: relative;
+  padding: 0 30px;
+
+  .s-content {
+    position: absolute;
+    top: 0;
+    left: 15px;
+    right: 15px;
+    bottom: 0;
+
+    white-space: nowrap;
+    overflow-y: hidden;
+    overflow-x: auto;
+  }
+
+  .s-item {
+    display: inline-block;
+    margin: 10px 5px;
+    height: 60px;
+  }
+
+  .s-left,
+  .s-right {
+    z-index: 2;
+    height: 50px;
+    margin-top: 35px;
+    background-color: #BCC3CA;
+    cursor: pointer;
+    position: absolute;
+
+    background-repeat: no-repeat;
+    background-position: -2px center;
+    background-size: 35px 35px;
+    width: 25px;
+  }
+
+  .s-left {
+    border-radius: 0 25px 25px 0;
+    left: 0;
+    background-position: -7px center;
+  }
+
+  .s-right {
+    border-radius: 25px 0 0 25px;
+    right: 0;
+  }
+}
+
+.coveo-styleguide {
+
+  .scroller,
+  #coveo-facet-column {
+
+    &::-webkit-scrollbar,
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb,
+    ::-webkit-scrollbar-thumb {
+      background-color: #bcc3ca;
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-button,
+    ::-webkit-scrollbar-button {
+      width: 0;
+      height: 0;
+    }
+  }
+}
+#userpage-stats {
+  background-color: #f7f7f7;
+}
+
+.user-and-stats {
+  width: 600px;
+  flex: 1;
+}
+
+.coveo-styleguide .userpage-picture {
+  margin: auto 30px auto 0;
+  border-radius: 50%;
+  background-size: 140px auto;
+  background-repeat: no-repeat;
+  height: 140px;
+  min-width: 140px;
+
+  .action-icon {
+    outline: none;
+  }
+
+  .tooltip {
+    color: $default-text-color;
+    max-width: 410px;
+    text-align: left;
+    border: 1px solid #263E55;
+    border-radius: 2px;
+    background-color: white;
+    position: absolute;
+    top: 80px;
+    left: 200px;
+    display: none;
+    z-index: 2000;
+    opacity: 1;
+    font-size: 15px;
+
+    .ct-tooltip-close-btn {
+      color: #fff;
+      margin: 12px;
+      position: absolute;
+      visibility: visible;
+      right: 0;
+    }
+
+    h2,
+    .tooltip-content {
+      padding: 15px;
+    }
+
+    h2 {
+      font-size: 15px;
+      height: 50px;
+      background-color: #263E55;
+      color: #fff;
+    }
+
+    h3 {
+      color: #263E55;
+      font-size: 15px;
+    }
+
+    ol {
+      li:before {
+        content: ' ';
+        background-image: url('//s3.amazonaws.com/coveo-static.coveodemo.com/icons/coveo-triangle.svg');
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: contain;
+        padding: 0px 4px 0 10px;
+        margin: 0 10px;
+      }
+    }
+  }
+}
+
+.userpage-user-name {
+  color: $icons-and-title-color;
+  font-size: 30px;
+  line-height: 36px;
+  margin-bottom: 10px;
+}
+
+.userpage-user-info {
+  color: $default-text-color;
+  font-size: 13px;
+  font-weight: bold;
+  line-height: 18px;
+}
+
+.icon-help {
+  background-image: url(//s3.amazonaws.com/coveo-static.coveodemo.com/icons/action-help.svg);
+}
+
+.coveo-small-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.userpage-small-icon {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-size: cover;
+  background-position: 0 1px;
+  padding: 0;
+  margin: -5px 2px;
+}
+
+.userpage-quickinfo {
+  cursor: default;
+  margin-bottom: 5px;
+  color: $default-text-color;
+  font-size: 15px;
+  font-weight: bold;
+  line-height: 22px;
+
+  background-position: 0 4px;
+  background-repeat: no-repeat;
+  background-size: 18px 18px;
+  padding-left: 0px;
+}
+
+.action-icon {
+  height: 24px;
+  width: 36px;
+  float: right;
+  cursor: pointer;
+
+  text-align: center;
+  border: 1px solid $usercard-border-color;
+  padding: 2px;
+  border-radius: 2px;
+  margin-top: 40px;
+  background-color: #fff;
+
+  svg {
+    height: 18px;
+    width: 18px;
+    fill: $icons-and-title-color;
+  }
+
+  &:hover svg {
+    fill: #EDAC00;
+  }
+}
+
+/* ORG */
+.small-picture {
+  height: 48px;
+  width: 48px;
+  border: 1px solid $usercard-border-color;
+  background-color: $usercard-border-color;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: 48px auto;
+  margin: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.userpage-container {
+  display: flex;
+
+  .userpage-main {
+    flex: 1;
+    max-width:80%;
+  }
+}
+
+.userpage-org {
+  border-left: 1px solid $medium-grey;
+  border-bottom: 1px solid $medium-grey;
+  padding-right: 10px;
+  padding-top: 30px;
+  background-color: white;
+}
+
+.org-chart {
+  margin-top: 30px;
+  padding-left: 25px;
+  width: 300px;
+  background-color: $org-panel-background;
+
+  div>* {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  li {
+    color: $org-panel-color;
+    list-style: none;
+    border-bottom: 2px solid $usercard-border-color;
+    border-left: 2px solid $usercard-border-color;
+    height: 65px;
+    position: relative;
+
+    div.selected {
+      background-color: #F1F3F4;
+      border-radius: 25px;
+    }
+  }
+
+  li:last-child {
+    border: none;
+  }
+
+  .usercard {
+    background-color: $org-panel-background;
+    margin-bottom: 10px;
+    position: absolute;
+    right: 0;
+    left: 0;
+    margin-top: -25px;
+    margin-left: -25px;
+
+    .dept {
+      display: none;
+    }
+
+    &.reports {
+      left: 35px;
+    }
+  }
+
+}
+
+.usercard {
+  min-height: 48px;
+  min-width: 200px;
+  cursor: pointer;
+  text-overflow: ellipsis;
+  color: $default-text-color;
+
+  &>div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-bottom: 2px;
+    font-size: 11pt;
+  }
+
+  .display-name {
+    margin-top: 8px;
+    color: $blue-link;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .small-picture {
+    float: left;
+    margin-right: 10px;
+    border-radius: 50%;
+    border: 2px solid $usercard-border-color;
+  }
+}
+
+.team-slider {
+  display: flex;
+
+  .usercard {
+    margin-right: 5px;
+    padding-top: 10px;
+    width: 300px;
+
+    .small-picture {
+      background-size: cover;
+      width: 74px;
+      height: 74px;
+    }
+
+    .display-name {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+  }
+}
+
+#userpage-stats {
+  .userpage-stats-section {
+    display: inline-block;
+    vertical-align: top;
+    margin-bottom: 15px;
+
+    h2 {
+      text-align: center;
+      font-size: 16px;
+      color: #296896;
+    }
+  }
+
+  .userpage-stats-item {
+    display: block;
+
+    >* {
+      cursor: default;
+    }
+  }
+
+  .userpage-stats-label {
+    display: inline-block;
+    width: 200px;
+
+    white-space: nowrap;
+    line-height: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: right;
+    padding-right: 10px;
+  }
+
+  svg {
+    min-width: 160px;
+  }
+}
+
+
+
+
+.coveo-modal-container.UserModal {
+  header {
+    height: 0;
+  }
+
+  .coveo-modal-body {
+    padding: 0;
+  }
+}
+
+
+.ct-people:before {
+  content: ' ';
+  background-repeat: no-repeat;
+  background-position: right;
+  opacity: .1;
+  position: absolute;
+  right: 10%;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.icon-position[data-office]:before,
+*[data-office]>.coveo-clickable:before {
+  content: ' ';
+  padding-left: 22px;
+}
