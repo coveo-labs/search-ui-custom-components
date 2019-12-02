@@ -2,7 +2,7 @@
 
 RewriteResultLink will change clickable/printable URI logic to specified rewrite rule. Will also rewrite all attachments + all childs.
 
-```
+``` html
 <a class="CoveoRewriteResultLink" find="" replace="" target="_blank"></a>
 ```
 

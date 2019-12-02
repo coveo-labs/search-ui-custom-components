@@ -6,8 +6,12 @@ import {
   IResultsComponentBindings,
   IBuildingQueryEventArgs,
   IInitializationEventArgs,
-  InitializationEvents
+  InitializationEvents,
+  Utils,
+  $$
 } from 'coveo-search-ui';
+
+import { each, indexOf, map } from 'underscore';
 
 export interface IAdditionalQueryFilterOptions {
   fields?: string[];
@@ -15,6 +19,7 @@ export interface IAdditionalQueryFilterOptions {
   filterquery?: string;
   filterquerynoresults?: string;
   scope?: string;
+  tabfield? : string;
 }
 
 export class AdditionalQueryFilter extends Component {
@@ -28,7 +33,8 @@ export class AdditionalQueryFilter extends Component {
     query: ComponentOptions.buildStringOption(),
     filterquery: ComponentOptions.buildStringOption({ defaultValue: '' }),
     filterquerynoresults: ComponentOptions.buildStringOption({ defaultValue: '' }),
-    scope: ComponentOptions.buildStringOption({ defaultValue: '' })
+    scope: ComponentOptions.buildStringOption({ defaultValue: '' }),
+    tabfield: ComponentOptions.buildStringOption({ defaultValue: '' })
   };
 
   constructor(public element: HTMLElement, public options: IAdditionalQueryFilterOptions, public bindings: IResultsComponentBindings) {
@@ -55,6 +61,44 @@ export class AdditionalQueryFilter extends Component {
     );
   }
 
+  public isElementIncludedInTab(element: HTMLElement, value): boolean {
+    const includedTabs = this.splitListOfTabs(element.getAttribute('data-tab-show'));
+    const excludedTabs = this.splitListOfTabs(element.getAttribute('data-tab-show-not'));
+
+    return (
+      (includedTabs.length != 0 && indexOf(includedTabs, value) != -1) ||
+      (excludedTabs.length != 0 && indexOf(excludedTabs, value) == -1) ||
+      (includedTabs.length == 0 && excludedTabs.length == 0)
+    );
+  }
+
+  private splitListOfTabs(value: string): string[] {
+    if (Utils.exists(value)) {
+      return map(value.split(','), tab => Utils.trim(tab));
+    } else {
+      return [];
+    }
+  }
+
+  private enableDisableTabs(){
+    console.log('Disable/enable tabs based on userprofile.');
+    const showElements = [];
+    const hideElements = [];
+    if (this.options.tabfield!=""){
+      var tabFieldValue = this.retrievedInfo[this.options.tabfield];
+      each($$(this.root).findAll('[data-tab-show],[data-tab-show-not]'), element => {
+        if (this.isElementIncludedInTab(element, tabFieldValue)) {
+          showElements.push(element);
+        } else {
+          hideElements.push(element);
+        }
+      });
+
+      each(showElements, elem => $$(elem).removeClass('coveo-tab-disabled'));
+      each(hideElements, elem => $$(elem).addClass('coveo-tab-disabled'));
+    }
+  }
+
   private handleQuery(args: IBuildingQueryEventArgs) {
     //Add Advancedquery
     this.getStorage();
@@ -70,6 +114,7 @@ export class AdditionalQueryFilter extends Component {
         args.queryBuilder.advancedExpression.add(this.options.filterquerynoresults);
       }
     } else {
+      
       if (this.options.filterquery != '') {
         var query = this.options.filterquery;
         for (var i = 0; i < this.options.fields.length; i++) {
@@ -117,11 +162,13 @@ export class AdditionalQueryFilter extends Component {
               } else {
                 _this.retrievedInfo['Collected'] = 'Empty';
               }
+              _this.enableDisableTabs();
               deferred(_this.queryController.executeQuery());
             })
             .catch(function(e) {
               console.log(e);
               _this.retrievedInfo['Collected'] == false;
+              _this.enableDisableTabs();
               deferred();
             });
         }

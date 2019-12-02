@@ -3,7 +3,7 @@
 CollapseFacet will create a direct dropdown collapse/expand icon without using the Settings component
 Add `data-easy-collapsible=="true"` to your facet.
 
-```
+```html
 <div class="CoveoFacet"  data-tab="EC" data-field="@myDOCCLASS" data-title="Classification"
               data-is-multi-value-field="true"
               data-enable-facet-search="false"

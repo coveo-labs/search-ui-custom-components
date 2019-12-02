@@ -1,9 +1,27 @@
 ## Basic Usage
 
 AdditionalQueryFilter will query the index to retrieve an additional filter to apply.
+It can also show tabs based upon a specific filter.
+
+In your tab section you can set:
+```html
+<a class="CoveoTab" id="allresults" data-id="All" data-sort="relevancy" data-icon="coveo-sprites-tab-all-content" data-caption="All"
+          data-tab-show=""
+          data-tab-show-not="HR"></a>
+```
+The above will disable the tab if the syscompany == HR.
+
+```html
+<a class="CoveoTab" id="allresults" data-id="All" data-sort="relevancy" data-icon="coveo-sprites-tab-all-content" data-caption="All"
+          data-tab-show="HR"
+          data-tab-show-not=""></a>
+```
+The above will show the tab if the syscompany == HR.
+
+
 For example: Get field @syscompany from the index and apply it as an AdvancedExpression.
 
-```
+```html
 <div class="CoveoAdditionalQueryFilter" data-scope="123" data-fields="@mycompany,@myuser" data-query="@syssource=People @querytogetcompanyname" data-filterquery="(@mycompany={FIELD1} AND @myuser={FIELD2}) OR NOT @mycompany"></div>
 ```
 
@@ -69,3 +87,10 @@ Scope ID to use for the above queries
 *Scope ID defined in Search Scopes*
 
 Example: `data-scope="432" `
+
+
+### tabfield : _string_
+
+Field to use to enable/disable tabs
+
+Example: `data-tabfield="mycompany" `

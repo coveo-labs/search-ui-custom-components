@@ -2,7 +2,7 @@
 
 ScopeSelector will add the specified scope based on the current selected tab.
 
-```
+``` html
 <div class="CoveoScopeSelector"></div>
 ```
 
@@ -18,7 +18,7 @@ Specifies a JSON object describing a mapping of Facet values to their desired ca
 You can only set this option in the {@link init} call of your search interface. You cannot set it directly in the
 markup as an HTML attribute.
 Example:
-```
+```javascript
    // Specific scopes
    var myScopes = {  "ALL": "12","Email": "43", [ etc ... ]};
    // You can set the option in the 'init' call using 'pure' JavaScript:

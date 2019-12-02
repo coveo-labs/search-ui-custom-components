@@ -2,7 +2,7 @@
 
 DateRangePicker will create a date range query selector.
 
-```
+```html
 <div class="CoveoDateRangePicker" ></div>
 ```
 
