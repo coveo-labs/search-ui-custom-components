@@ -8,10 +8,11 @@ import {
   IInitializationEventArgs,
   InitializationEvents,
   Utils,
+  Tab,
   $$
 } from 'coveo-search-ui';
 
-import { each, indexOf, map } from 'underscore';
+import { each,  map } from 'underscore';
 
 export interface IAdditionalQueryFilterOptions {
   fields?: string[];
@@ -62,13 +63,25 @@ export class AdditionalQueryFilter extends Component {
   }
 
   public isElementIncludedInTab(element: HTMLElement, value): boolean {
+    if (value=="") return true;
     const includedTabs = this.splitListOfTabs(element.getAttribute('data-tab-show'));
     const excludedTabs = this.splitListOfTabs(element.getAttribute('data-tab-show-not'));
-
+    const inIncluded = includedTabs.filter(p => value.includes(p)).length>0;
+    const inExcluded = excludedTabs.filter(p => value.includes(p)).length>0;
     return (
-      (includedTabs.length != 0 && indexOf(includedTabs, value) != -1) ||
-      (excludedTabs.length != 0 && indexOf(excludedTabs, value) == -1) ||
+      (includedTabs.length != 0 && inIncluded) ||
+      (excludedTabs.length != 0 && !inExcluded) ||
       (includedTabs.length == 0 && excludedTabs.length == 0)
+    );
+  }
+
+  public isElementInTab(element: HTMLElement, value): boolean {
+    if (value=="") return false;
+    const includedTabs = this.splitListOfTabs(element.getAttribute('data-tab-show-initial'));
+    const inIncluded = includedTabs.filter(p => value.includes(p)).length>0;
+    return (
+      (includedTabs.length != 0 && inIncluded) ||
+      (includedTabs.length == 0)
     );
   }
 
@@ -84,6 +97,7 @@ export class AdditionalQueryFilter extends Component {
     console.log('Disable/enable tabs based on userprofile.');
     const showElements = [];
     const hideElements = [];
+    var tabToActivate: HTMLElement;
     if (this.options.tabfield!=""){
       var tabFieldValue = this.retrievedInfo[this.options.tabfield];
       each($$(this.root).findAll('[data-tab-show],[data-tab-show-not]'), element => {
@@ -93,10 +107,21 @@ export class AdditionalQueryFilter extends Component {
           hideElements.push(element);
         }
       });
+      each($$(this.root).findAll('[data-tab-show-initial]'), element => {
+        if (this.isElementInTab(element, tabFieldValue)) {
+          tabToActivate = element;
+        } 
+      });
 
       each(showElements, elem => $$(elem).removeClass('coveo-tab-disabled'));
       each(hideElements, elem => $$(elem).addClass('coveo-tab-disabled'));
+      //Activate tab
+      if (tabToActivate!=undefined) {
+        var myTabInstance = Coveo.get(tabToActivate);
+        (myTabInstance as Tab).select();
+      }
     }
+
   }
 
   private handleQuery(args: IBuildingQueryEventArgs) {

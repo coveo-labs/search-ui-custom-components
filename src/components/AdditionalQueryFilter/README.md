@@ -1,22 +1,25 @@
 ## Basic Usage
 
 AdditionalQueryFilter will query the index to retrieve an additional filter to apply.
-It can also show tabs based upon a specific filter.
+It can also show tabs based upon a match on a field from the user (for example department).
+Besides the 'show tabs' it can also activate the initial tab for a specific profile.
 
 In your tab section you can set:
 ```html
 <a class="CoveoTab" id="allresults" data-id="All" data-sort="relevancy" data-icon="coveo-sprites-tab-all-content" data-caption="All"
           data-tab-show=""
-          data-tab-show-not="HR"></a>
+          data-tab-show-not="HR"
+          data-tab-show-initial="Sales"></a>
 ```
-The above will disable the tab if the syscompany == HR.
+The above will disable the tab if the syscompany == HR. It will activate the tab for the `Sales` people.
+Remark: filter is partial match.
 
 ```html
 <a class="CoveoTab" id="allresults" data-id="All" data-sort="relevancy" data-icon="coveo-sprites-tab-all-content" data-caption="All"
           data-tab-show="HR"
           data-tab-show-not=""></a>
 ```
-The above will show the tab if the syscompany == HR.
+The above will show the tab if the syscompany == HR. Remark: filter is partial match.
 
 
 For example: Get field @syscompany from the index and apply it as an AdvancedExpression.
