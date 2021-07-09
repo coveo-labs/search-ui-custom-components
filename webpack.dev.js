@@ -22,7 +22,17 @@ module.exports = merge(common, {
     before(app) {
       app.set('view engine', 'ejs');
       app.get('/', (req, res) => {
-        res.render(`index`, (err, html) => {
+        res.render(`index`, {filename: 'index'}, (err, html) => {
+          if (err) {
+            console.error(err);
+            res.status(404).send('Page not found');
+          } else {
+            res.send(html);
+          }
+        });
+      });
+      app.get('/views/*', (req, res) => {
+        res.render(req.params[0] + '.ejs', {filename: req.params[0]}, (err, html) => {
           if (err) {
             console.error(err);
             res.status(404).send('Page not found');

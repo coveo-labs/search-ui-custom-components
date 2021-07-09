@@ -1,0 +1,26 @@
+.header-links {
+  background-color: #f7f8f9;
+  text-align: center;
+  display:flex;
+  line-height: 36px;
+
+  > a {
+    flex: 1;
+    margin: 4px 12px 0px;
+    padding: 4px 4px 8px;
+    display: inline-block;
+    color: #004990;
+    text-decoration: none;
+    cursor: pointer;
+    word-wrap: break-word;
+    font-variant: small-caps;
+    font-size: 18px;
+
+    &:hover {
+      text-decoration: underline;
+    }
+    &.selected {
+      border-bottom: 2px solid #004990;
+    }
+  }
+}

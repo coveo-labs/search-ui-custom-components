@@ -3,6 +3,7 @@ declare global {
     [propName: string]: any;
   }
 }
+require('./Index.scss');
 
 import './Components';
 import { doInitialization } from './Initialization';

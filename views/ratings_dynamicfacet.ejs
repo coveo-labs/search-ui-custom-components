@@ -1,0 +1,71 @@
+<%- include('header'); -%>
+
+<body id="search" class="CoveoSearchInterface" data-enable-history="true" data-design="new" data-expression="@snrating">
+  <div class="coveo-search-section">
+    <div class="CoveoSearchbox" data-enable-omnibox="true"></div>
+  </div>
+  <div class="coveo-main-section">
+    <div class="coveo-facet-column">
+
+      <div class="CoveoDynamicFacetRange ratings"
+        id="RatingFacet"
+        data-title="Rating"
+        data-field="@snrating"
+        data-number-of-values="4"
+        data-ranges='[
+          {"start": 4, "end": 100, "endInclusive": false, "label": "&bigstar;&bigstar;&bigstar;&bigstar;&star; and up"},
+          {"start": 3, "end": 4, "endInclusive": false, "label": "&bigstar;&bigstar;&bigstar;&star;&star;"},
+          {"start": 2, "end": 3, "endInclusive": false, "label": "&bigstar;&bigstar;&star;&star;&star;"},
+          {"start": 0, "end": 2, "endInclusive": false, "label": "&bigstar;&star;&star;&star;&star; or less"}]'>
+      </div>
+    </div>
+    <div class="coveo-results-column">
+      <div class="CoveoBreadcrumb"></div>
+      <div class="coveo-results-header">
+        <div class="coveo-summary-section">
+          <span class="CoveoQuerySummary"></span>
+          <span class="CoveoQueryDuration"></span>
+        </div>
+      </div>
+
+      <div class="CoveoResultList" data-wait-animation="fade" data-auto-select-fields-to-include="true">
+        <script id="Default" class="result-template" type="text/html">
+          <div class="coveo-result-frame">
+            <div class="coveo-result-row">
+              <div class="coveo-result-cell" style="width:70px;text-align:center;padding-top:7px;">
+                <span class="CoveoIcon"></span>
+                <div class="CoveoQuickview">
+                  <div class="coveo-icon-for-quickview">Quickview</div>
+                </div>
+              </div>
+              <div class="coveo-result-cell" style="padding-left:5px;">
+                <div class="coveo-result-row">
+                  <div class="coveo-result-cell" style="font-size:16px;">
+                    <a class="CoveoResultLink"></a>
+                  </div>
+                  <div class="coveo-result-cell" style="width:120px; text-align:right; font-size:12px">
+                    <span class="CoveoFieldValue" data-field="@date" data-helper="date"></span>
+                  </div>
+                </div>
+                <div class="coveo-result-row">
+                  <div class="coveo-result-cell">
+                    <span class="CoveoExcerpt"></span>
+                  </div>
+                </div>
+                <div class="coveo-result-row">
+                  <div class="coveo-result-cell" style="padding-top: 12px;">
+                    <div class="CoveoRating" data-field="@snrating"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </script>
+      </div>
+
+      <div class="CoveoPager"></div>
+    </div>
+  </div>
+</body>
+
+</html>

@@ -9,3 +9,4 @@ export { QuerySyntaxToggle } from './components/QuerySyntaxToggle.ts/QuerySyntax
 export { CollapseExpandAllFacet } from './components/CollapseExpandAllFacet/CollapseExpandAllFacet';
 export { CustomContext } from './components/CustomContext/CustomContext';
 export { RelevancyIndicator } from './components/RelevancyIndicator/RelevancyIndicator';
+export { Rating } from './components/Rating/Rating';

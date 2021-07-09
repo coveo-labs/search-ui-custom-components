@@ -1,31 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
+<%- include('header'); -%>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Custom Components</title>
-  <script src="https://static.cloud.coveo.com/searchui/v2.6459/js/CoveoJsSearch.min.js"></script>
-  <script src="assets/js/CoveoCustomComponents.js"></script>
-  <link rel="stylesheet" href="assets/css/CoveoCustomComponents.css" />
-  <link rel="stylesheet" href="https://static.cloud.coveo.com/searchui/v2.6459/css/CoveoFullSearch.css" />
-
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/fontawesome.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/solid.min.css" rel="stylesheet">
-</head>
-
-<body id="search" class='CoveoSearchInterface' data-enable-history="true" data-design="new">
+<body id="search" class="CoveoSearchInterface" data-enable-history="true" data-design="new">
   <script class="CoveoPipelineContext" type='text/context'>
   {
     "phone": "lg"
   }
   </script>
   <div class="CoveoCustomContext"></div>
-  <div class="coveo-tab-section">
-    <a class="CoveoTab" data-id="All" data-caption="All Content"></a>
-  </div>
-  <div class='coveo-search-section'>
+  <div class="coveo-search-section">
     <div class="CoveoSettings" data-include-in-menu=".CoveoShareQuery, .CoveoFeedbackLink"></div>
     <div class="CoveoSearchbox" data-enable-omnibox="true"></div>
   </div>
@@ -100,7 +82,7 @@
                 </div>
                 <div class="coveo-result-row">
                   <div class="coveo-result-cell">
-                      <div class="CoveoRelevancyIndicator" data-threshold="60" data-hide-caption="false"></div>
+                    <div class="CoveoRelevancyIndicator" data-threshold="60" data-hide-caption="false"></div>
                   </div>
                 </div>
                 <div class="coveo-result-row">
@@ -120,7 +102,6 @@
                 <div class="CoveoQuickview">
                   <div class="coveo-icon-for-quickview">Quickview</div>
                 </div>
-                <div class="CoveoRating"></div>
               </div>
               <div class="coveo-result-cell" style="padding-left:5px;">
                 <div class="coveo-result-row">
@@ -139,7 +120,7 @@
                 </div>
                 <div class="coveo-result-row">
                   <div class="coveo-result-cell">
-                      <div class="CoveoRelevancyIndicator" data-threshold="60" data-hide-caption="false"></div>
+                    <div class="CoveoRelevancyIndicator" data-threshold="60" data-hide-caption="false"></div>
                   </div>
                 </div>
               </div>

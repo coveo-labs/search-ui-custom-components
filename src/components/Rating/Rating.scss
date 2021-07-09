@@ -1,0 +1,62 @@
+$star-filled-color: #FFAC21;
+$star-default-color: #aaaaaa;
+
+
+.CoveoRating {
+  color: $star-default-color;
+
+  .rating {
+    color: $star-filled-color;
+  }
+}
+
+.ratings {
+  &.CoveoFacetRange .coveo-facet-value-caption {
+    &:before {
+      color: $star-filled-color;
+      position: absolute;
+    }
+
+    &[data-original-value="0.000000..1.999990"]:before {
+      content: '★';
+    }
+
+    &[data-original-value="2.000000..2.999990"]:before {
+      content: '★★';
+    }
+
+    &[data-original-value="3.000000..3.999990"]:before {
+      content: '★★★';
+    }
+
+    &[data-original-value="4.000000..99.999990"]:before {
+      content: '★★★★';
+    }
+  }
+
+  &.CoveoDynamicFacetRange {
+    .coveo-dynamic-facet-value {
+      .coveo-checkbox-span-label:before {
+        color: $star-filled-color;
+        position: absolute;
+      }
+
+      &[data-value="4..100exc"] .coveo-checkbox-span-label:before {
+        content: '★★★★';
+      }
+
+      &[data-value="3..4exc"] .coveo-checkbox-span-label:before {
+        content: '★★★';
+      }
+
+      &[data-value="2..3exc"] .coveo-checkbox-span-label:before {
+        content: '★★';
+      }
+
+      &[data-value="0..2exc"] .coveo-checkbox-span-label:before {
+        content: '★';
+      }
+    }
+  }
+
+}
